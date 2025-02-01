@@ -28,7 +28,7 @@ model User{
   experience    Int?
   skills        String[]
 
-  assessments   Assessment[]
+  assessments   Assessment[] 
   resume        Resume?
   coverLetter   CoverLetter[]
 }

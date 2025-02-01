@@ -174,7 +174,7 @@ export default function Home() {
       <p className="mx-auto max-w-[600px] text-primary-foreground/80 md:text-xl">
       Empower your career with AI—be part of the future of professional growth!
       </p>
-      <Link href="/dashboard" passHref>
+      <Link href="/onboarding" passHref>
       <Button size="lg" variant="secondary" className="h-11 mt-5 animate-bounce">
       Kickstart Your Career Today! <ArrowRight className="ml-2 h-4 w-4"/>
       </Button>
