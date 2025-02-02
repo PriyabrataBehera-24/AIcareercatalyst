@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { ChevronDown, FileText, GraduationCap, LayoutDashboard, PenBox, StarsIcon } from "lucide-react";
+import { ChevronDown, FileText, GraduationCap, LayoutDashboard, MessageCircle, PenBox, StarsIcon, WandSparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -51,6 +51,18 @@ const Header = async() => {
     <Link href="/interview" className="flex items-center gap-2">
       <GraduationCap className="h-4 w-4"/>
       Interview Prep
+      </Link>
+    </DropdownMenuItem>
+    <DropdownMenuItem>
+    <Link href="/chatbot" className="flex items-center gap-2">
+      <MessageCircle className="h-4 w-4"/>
+      Chatbot
+      </Link>
+    </DropdownMenuItem>
+    <DropdownMenuItem>
+    <Link href="/feedback" className="flex items-center gap-2">
+      <WandSparkles className="h-4 w-4"/>
+      Feedback
       </Link>
     </DropdownMenuItem>
   </DropdownMenuContent>
