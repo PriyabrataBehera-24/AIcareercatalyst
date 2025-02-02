@@ -125,8 +125,6 @@ npm install -g vercel
 vercel
 ```
 
-## 📜 License
-This project is licensed under the MIT License.
 
 ## 🔗 Repository
 [GitHub Repository](https://github.com/PriyabrataBehera-24/AIcareercatalyst)
