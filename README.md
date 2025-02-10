@@ -1,10 +1,10 @@
 # AI Career Catalyst
 
-AI Career Catalyst is a Next.js project designed to help users navigate their career paths in the AI field. This README provides instructions for setting up the backend using Neon.tech for the database, Clerk for authentication, Inngest for event-driven workflows, and Gemini API for AI-powered functionalities.
+AI Career Catalyst is a Next.js project designed to help users navigate their career paths in the any field. This README provides instructions for setting up the backend using Neon.tech for the database, Clerk for authentication, Inngest for event-driven workflows, and Gemini API for AI-powered functionalities.
 
 ## 🔥 Project Features
 
-1.Career Guidance in AI: Personalized recommendations for career growth in AI.
+1.Career Guidance : Personalized recommendations for career growth .
 
 2.AI Resume & Cover Letter Generator: Automatically generate professional AI-optimized resumes and cover letters.
 
