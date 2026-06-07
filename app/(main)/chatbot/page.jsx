@@ -1,147 +1,216 @@
 "use client";
-import React, { useState } from "react";
 
-// Predefined responses for different career fields
-const jsonResponses = {
-  "software engineer": {
-    role: "Software Engineer",
-    salaryRange: { min: 60000, max: 150000, median: 90000 },
-    skills: ["Programming", "Problem Solving", "Algorithms", "Data Structures", "Version Control"],
-    growthRate: "22%",
-    demandLevel: "HIGH",
-    marketOutlook: "POSITIVE",
-    recommendedSkills: ["Cloud Computing", "Machine Learning", "DevOps"]
-  },
-  "data scientist": {
-    role: "Data Scientist",
-    salaryRange: { min: 70000, max: 180000, median: 100000 },
-    skills: ["Data Analysis", "Machine Learning", "Statistics", "Programming", "Data Visualization"],
-    growthRate: "18%",
-    demandLevel: "HIGH",
-    marketOutlook: "POSITIVE",
-    recommendedSkills: ["Deep Learning", "AI", "Big Data"]
-  },
-  "digital marketer": {
-    role: "Digital Marketer",
-    salaryRange: { min: 40000, max: 120000, median: 65000 },
-    skills: ["SEO", "Content Creation", "Social Media Marketing", "PPC Advertising", "Data Analytics"],
-    growthRate: "10%",
-    demandLevel: "MEDIUM",
-    marketOutlook: "NEUTRAL",
-    recommendedSkills: ["Content Marketing", "Email Marketing", "Influencer Marketing"]
-  },
-  "graphic designer": {
-    role: "Graphic Designer",
-    salaryRange: { min: 35000, max: 90000, median: 55000 },
-    skills: ["Adobe Suite", "Creativity", "Typography", "Branding", "UX/UI Design"],
-    growthRate: "5%",
-    demandLevel: "MEDIUM",
-    marketOutlook: "NEUTRAL",
-    recommendedSkills: ["UI/UX", "Motion Graphics", "3D Design"]
-  },
-  "teacher": {
-    role: "Teacher",
-    salaryRange: { min: 30000, max: 70000, median: 45000 },
-    skills: ["Communication", "Classroom Management", "Lesson Planning", "Adaptability", "Organization"],
-    growthRate: "4%",
-    demandLevel: "MEDIUM",
-    marketOutlook: "NEUTRAL",
-    recommendedSkills: ["Technology Integration", "Special Education", "Online Teaching"]
-  },
-  "default": {
-    message: "Sorry, I don't have information on that career field. Please try another."
-  }
-};
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Bot, Send, User, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { chat } from "@/actions/chatbot";
+import MDEditor from "@uiw/react-md-editor";
 
-const ChatbotPage = () => {
-  const [chatMessages, setChatMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
+const SUGGESTED_QUESTIONS = [
+  "How do I transition into a tech career?",
+  "What skills should I develop for my field?",
+  "How can I improve my resume?",
+  "Tips for salary negotiation?",
+  "How to prepare for interviews?",
+  "How to grow my professional network?",
+];
 
-  // Predefined career options
-  const careerFields = [
-    "Software Engineer",
-    "Data Scientist",
-    "Digital Marketer",
-    "Graphic Designer",
-    "Teacher"
-  ];
+export default function ChatbotPage() {
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content:
+        "Hi! I'm your AI Career Coach 👋\n\nI'm here to help you with career planning, resume advice, interview prep, and much more. What would you like to work on today?",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const bottomRef = useRef(null);
 
-  const handleCareerSelection = (career) => {
-    setLoading(true);
-    const response = jsonResponses[career.toLowerCase()] || jsonResponses["default"];
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    let aiMessage = {
-      sender: "chatbot",
-      message: "",
-    };
+  const handleSend = async (text) => {
+    const userMessage = text || input.trim();
+    if (!userMessage || isLoading) return;
 
-    if (response.message) {
-      aiMessage.message = response.message;
-    } else {
-      aiMessage.message = `
-        Role: ${response.role}
-        Salary Range: $${response.salaryRange.min.toLocaleString()} - $${response.salaryRange.max.toLocaleString()} (Median: $${response.salaryRange.median.toLocaleString()})
-        Skills: ${response.skills.join(", ")}
-        Growth Rate: ${response.growthRate}
-        Demand Level: ${response.demandLevel}
-        Market Outlook: ${response.marketOutlook}
-        Recommended Skills: ${response.recommendedSkills.join(", ")}
-      `;
+    const newMessages = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await chat(newMessages);
+      setMessages((prev) => [...prev, response]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            `❌ Error: ${error?.message || "Unknown error — check your terminal logs."}`,
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
-
-    // Append AI message to chat
-    setChatMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: "chatbot", message: aiMessage.message },
-    ]);
-    setLoading(false);
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-6xl font-bold gradient-title text-center">
-        Career Info Chatbot
-      </h1>
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
-      <div className="w-full max-w-xl bg-gray-800 p-6 rounded-lg shadow-lg overflow-hidden">
-        <div className="h-96 overflow-y-scroll mb-4"> {/* Height set to h-96 */}
-          {chatMessages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} mb-4`}
-            >
+  const handleReset = () => {
+    setMessages([
+      {
+        role: "assistant",
+        content:
+          "Hi! I'm your AI Career Coach 👋\n\nI'm here to help you with career planning, resume advice, interview prep, and much more. What would you like to work on today?",
+      },
+    ]);
+    setInput("");
+  };
+
+  const showSuggestions = messages.length <= 1;
+
+  return (
+    <div className="container mx-auto py-6 max-w-4xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold gradient-title flex items-center gap-2">
+            <Bot className="h-8 w-8" />
+            AI Career Coach
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Get personalized career guidance, resume tips, and interview prep
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleReset}>
+          <RotateCcw className="h-4 w-4 mr-2" />
+          New Chat
+        </Button>
+      </div>
+
+      {/* Chat Area */}
+      <Card className="flex flex-col h-[600px]">
+        {/* Scrollable messages */}
+        <div className="flex-1 overflow-y-auto p-4 min-h-0">
+          <div className="space-y-4">
+            {messages.map((msg, i) => (
               <div
-                className={`max-w-xs p-4 rounded-lg ${msg.sender === "user" ? "bg-blue-600" : "bg-gray-700"}`}
+                key={i}
+                className={`flex gap-3 ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <p>{msg.message}</p>
+                {msg.role === "assistant" && (
+                  <div className="h-8 w-8 mt-1 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                )}
+
+                <div
+                  className={`max-w-[80%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {msg.role === "assistant" ? (
+                    <div data-color-mode="auto">
+                      <MDEditor.Markdown
+                        source={msg.content}
+                        style={{ background: "transparent", fontSize: "0.875rem" }}
+                      />
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  )}
+                </div>
+
+                {msg.role === "user" && (
+                  <div className="h-8 w-8 mt-1 shrink-0 rounded-full bg-secondary flex items-center justify-center">
+                    <User className="h-4 w-4" />
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            ))}
+
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
+                <div className="h-8 w-8 mt-1 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div className="bg-muted rounded-xl px-4 py-3">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
         </div>
 
-        {!loading && (
-          <div className="mb-4">
-            <p>Select a career field:</p>
-            <div className="h-48 overflow-y-auto mt-2"> {/* Scrollable container for career fields */}
-              <div className="flex flex-col gap-4">
-                {careerFields.map((career) => (
-                  <button
-                    key={career}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    onClick={() => handleCareerSelection(career)}
-                  >
-                    {career}
-                  </button>
-                ))}
-              </div>
+        {/* Suggested Questions */}
+        {showSuggestions && (
+          <div className="px-4 pb-2 border-t pt-3">
+            <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> Suggested questions
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTED_QUESTIONS.map((q, i) => (
+                <Badge
+                  key={i}
+                  variant="outline"
+                  className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs py-1"
+                  onClick={() => handleSend(q)}
+                >
+                  {q}
+                </Badge>
+              ))}
             </div>
           </div>
         )}
 
-        {loading && <p className="text-center">Loading...</p>}
-      </div>
+        {/* Input Area */}
+        <CardContent className="border-t p-4">
+          <div className="flex gap-3 items-end">
+            <Textarea
+              placeholder="Ask me anything about your career..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              rows={2}
+              className="resize-none flex-1"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isLoading}
+              size="icon"
+              className="h-10 w-10 shrink-0"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Press Enter to send · Shift+Enter for new line
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default ChatbotPage;
+}
