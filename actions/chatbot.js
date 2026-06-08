@@ -28,7 +28,7 @@ If the user hasn't provided enough context, ask clarifying questions.`,
 
     const lastMessage = messages[messages.length - 1];
 
-    // Build history from all messages except the last one.
+    // Build history from all messages except the last one, which is the current user input.
     // Gemini requires: history must start with 'user' and alternate user/model.
     // So we drop any leading assistant messages (e.g. the greeting).
     const rawHistory = messages.slice(0, -1).map((msg) => ({
