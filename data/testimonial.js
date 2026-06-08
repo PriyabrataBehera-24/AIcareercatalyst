@@ -2,7 +2,7 @@ export const testimonial = [
   {
     quote:
      "This AI career coach gave me clear direction. I landed a high-paying role faster than expected!",
-    author: "Ankita Jain",
+    author: "Ankita Jains",
     image: "https://randomuser.me/api/portraits/women/75.jpg",
     role: "Software Engineer",
     company: "InnoTech Solutions",
